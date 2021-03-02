@@ -1,0 +1,36 @@
+# MySQL 配置
+[mysql]
+#用户名
+username = "root"
+#密码
+password = "root"
+#链接地址
+address = "127.0.0.1:3306"
+#数据库名称
+db_name = "id_generator"
+#附加请求参数
+params = "clientFoundRows=false&parseTime=true&loc=Asia%2FShanghai&timeout=5s&collation=utf8mb4_bin&interpolateParams=true"
+#最大连接数
+max_open = 100
+#最大空闲数
+max_idle = 100
+#连接生命时长，秒
+max_lifetime = 300
+
+[http]
+port = 22102
+
+[log]
+save_path = "/Users/caoshuyu/WorkSpace/GoWork/Csy/src/logs"
+
+#雪花算法配置
+[snowflake]
+#数据中心ID
+data_center_id = 1
+#机器ID
+machine_id = 1
+
+#配置更新授权
+[conf_key]
+ak = ""
+sk = ""

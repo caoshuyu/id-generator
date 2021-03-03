@@ -1,3 +1,8 @@
 package conf
 
 const SERVER_NAME = "id-generator"
+
+const (
+	MYSQL_STATUS_USE    = 0
+	MYSQL_STATUS_DELETE = 2
+)

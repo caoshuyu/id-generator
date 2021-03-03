@@ -7,7 +7,7 @@ password = "root"
 #链接地址
 address = "127.0.0.1:3306"
 #数据库名称
-db_name = "id_generator"
+db_name = "id-generator"
 #附加请求参数
 params = "clientFoundRows=false&parseTime=true&loc=Asia%2FShanghai&timeout=5s&collation=utf8mb4_bin&interpolateParams=true"
 #最大连接数

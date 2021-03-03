@@ -17,7 +17,7 @@ func ListeningHTTP() {
 			"*",
 		},
 		AllowMethods:     []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
-		AllowHeaders:     []string{"Accept", "Content-Type", "Authorization", "Scheduler"},
+		AllowHeaders:     []string{"Accept", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
 	e.GET("/ping", func(context echo.Context) error {
@@ -53,7 +53,7 @@ func businessRouter(e *echo.Echo) {
 	//根据project_id，table_name，column_name获取标记Key
 	e.POST("/get_auto_id_key", brf.getAutoIdKey)
 	//获取自增ID
-	e.POST("/get_auto_id", brf.getAutoId)
+	e.POST("/get_auto_number", brf.getAutoNumber)
 }
 
 //配置接口

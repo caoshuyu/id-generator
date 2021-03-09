@@ -5,6 +5,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/caoshuyu/kit/dlog"
 	"github.com/caoshuyu/kit/mysqltools"
+	"github.com/caoshuyu/kit/redistools"
 	"strconv"
 	"time"
 )
@@ -12,7 +13,9 @@ import (
 var requestHttpPort string
 var sfc snowflakeConf
 var mysql *mysqltools.MySqlConf
+var redis *redistools.RedisConf
 var confKey confKeyConf
+var throughAttackTime int64
 
 func InitConf() {
 	conf, err := getConf()
@@ -22,7 +25,9 @@ func InitConf() {
 	requestHttpPort = ":" + strconv.Itoa(conf.Http.Port)
 	initLog(&conf)
 	mysql = initMysql(&conf)
+	redis = initRedis(&conf)
 	initConfKey(&conf)
+	initThroughAttack(&conf)
 }
 
 func getConf() (config, error) {
@@ -52,11 +57,23 @@ func initMysql(conf *config) *mysqltools.MySqlConf {
 	}
 }
 
+func initRedis(conf *config) *redistools.RedisConf {
+	return &redistools.RedisConf{
+		Addr:     conf.Redis.Addr,
+		Password: conf.Redis.Password,
+		DB:       conf.Redis.DB,
+	}
+}
+
 func initConfKey(conf *config) {
 	confKey = confKeyConf{
 		Ak: conf.ConfKey.Ak,
 		Sk: conf.ConfKey.Sk,
 	}
+}
+
+func initThroughAttack(conf *config) {
+	throughAttackTime = conf.ThroughAttack.TimeSecond
 }
 
 //更新某个特定配置
@@ -76,6 +93,8 @@ func UpdateConf(confName string) (err error) {
 		mysql = initMysql(&conf)
 	case "log":
 		initLog(&conf)
+	case "through_attack":
+		initThroughAttack(&conf)
 	}
 
 	return
@@ -105,6 +124,14 @@ func (ConfRead) GetMysqlConf() *mysqltools.MySqlConf {
 	return mysql
 }
 
+func (ConfRead) GetRedisConf() *redistools.RedisConf {
+	return redis
+}
+
 func (ConfRead) GetConfKey() (ak, sk string) {
 	return confKey.Ak, confKey.Sk
+}
+
+func (ConfRead) GetThroughAttackTime() int64 {
+	return throughAttackTime
 }

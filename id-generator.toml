@@ -17,6 +17,11 @@ max_idle = 100
 #连接生命时长，秒
 max_lifetime = 300
 
+[redis]
+addr = "127.0.0.1:6379"
+password = ""
+db = 0
+
 [http]
 port = 22102
 
@@ -34,3 +39,6 @@ machine_id = 1
 [conf_key]
 ak = ""
 sk = ""
+
+[through_attack]
+time_second = 30

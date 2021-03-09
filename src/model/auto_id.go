@@ -122,3 +122,43 @@ func (t *AutoId) _errorSelectIdByProjectIdAndTableNameAndColumnName(err error, s
 	errMap["column_name"] = columnName
 	mysqltools.WriteDbError(t.tableName(), err, sqlText, errMap)
 }
+
+func (t *AutoId) SelectById(db *sql.DB, id int64) (*AutoId, error) {
+	sqlText := "SELECT id_type,filling,st_prefix,n_length,st_now,n_increment FROM " + t.tableName() + " WHERE id = ?"
+	ai := AutoId{}
+	err := db.QueryRow(sqlText, id).Scan(
+		&ai.IdType,
+		&ai.Filling,
+		&ai.StPrefix,
+		&ai.NLength,
+		&ai.StNow,
+		&ai.NIncrement,
+	)
+	if nil != err {
+		t._errorSelectById(err, sqlText, id)
+		return nil, err
+	}
+	return &ai, nil
+}
+func (t *AutoId) _errorSelectById(err error, sqlText string, id int64) {
+	errMap := make(map[string]interface{})
+	errMap["id"] = id
+	mysqltools.WriteDbError(t.tableName(), err, sqlText, errMap)
+}
+
+func (t *AutoId) UpdateStNowById(db *sql.DB, id int64) (number int64, err error) {
+	sqlText := "UPDATE auto_id SET st_now = st_now + n_increment WHERE id = ?"
+	var params []interface{}
+	params = append(params, id)
+	number, err = UpdateTableValue(db, sqlText, params)
+	if nil != err {
+		t._errorUpdateStNowById(err, sqlText, id)
+		return 0, err
+	}
+	return number, nil
+}
+func (t *AutoId) _errorUpdateStNowById(err error, sqlText string, id int64) {
+	errMap := make(map[string]interface{})
+	errMap["id"] = id
+	mysqltools.WriteDbError(t.tableName(), err, sqlText, errMap)
+}

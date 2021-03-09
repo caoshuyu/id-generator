@@ -66,9 +66,44 @@ ID 生成器
 
 1. 获取自增ID
    + 请求地址：/get_auto_number
+   + 请求参数 
+    ```json
+    {
+        "key_number":"564614232419598336"
+    }
+    ```
+    或者
+    ```json
+    {
+        "project_id":"0001",
+        "table_name":"test_01",
+        "column_name":"demo_01"
+    }
+    ```
+       + 参数说明
+        
+        |参数名|参数类型|参数说明|是否必须|默认值|
+        |---|---|---|---|---|
+        |project_id|string|项目ID|false|-|
+        |table_name|string|表名|false|-|
+        |column_name|string|列名|false|-|
+        |key_number|string|标记key|false|
+       + 使用说明
+          + key_number 或者 project_id+table_name+column_name 两种请求方式都可以使用，推荐使用project_id
 
+    + 返回参数
+    ```json
+    {
+        "code": 0,
+        "data": {
+            "number": "bt000000001"
+        }
+    }
+    ```
 
-
+        |参数名|参数类型|参数说明|是否必须|
+        |---|---|---|---|    
+        |number|string|自增数值|true|
 
 1. 根据project_id，table_name，column_name获取标记Key
    + 请求地址：/get_auto_id_key

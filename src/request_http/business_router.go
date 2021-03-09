@@ -87,7 +87,7 @@ func (*businessRouterFunc) getAutoNumber(ectx echo.Context) (err error) {
 		TableName:  req.TableName,
 		ColumnName: req.ColumnName,
 	}
-	var ctx context.Context
+	ctx := context.Background()
 	number, err := contStruct.GetAutoNumber(ctx, &input)
 	if nil != err {
 		return echo_out_tools.EchoErrorData(ectx, err, conf.GetErrorCode(err))

@@ -1,11 +1,13 @@
 package conf
 
 type config struct {
-	Mysql     mysqlConf
-	Http      httpConf
-	Log       logConf
-	Snowflake snowflakeConf
-	ConfKey   confKeyConf
+	Mysql         mysqlConf
+	Redis         redisConf
+	Http          httpConf
+	Log           logConf
+	Snowflake     snowflakeConf
+	ConfKey       confKeyConf       `toml:"conf_key"`
+	ThroughAttack throughAttackConf `toml:"through_attack"`
 }
 
 type mysqlConf struct {
@@ -35,4 +37,14 @@ type snowflakeConf struct {
 type confKeyConf struct {
 	Ak string
 	Sk string
+}
+
+type redisConf struct {
+	Addr     string
+	Password string
+	DB       int
+}
+
+type throughAttackConf struct {
+	TimeSecond int64 `toml:"time_second"`
 }

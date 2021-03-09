@@ -23,3 +23,19 @@ func GetMasterDb() *sql.DB {
 func UpdateMasterDb(newClient *mysqltools.MysqlClient) {
 	masterDbClient = newClient
 }
+
+func UpdateTableValue(db *sql.DB, sqlText string, params []interface{}) (number int64, err error) {
+	stmt, err := db.Prepare(sqlText)
+	if nil != err {
+		return 0, err
+	}
+	defer stmt.Close()
+	res, err := stmt.Exec(
+		params...,
+	)
+	number, err = res.RowsAffected()
+	if nil != err {
+		return 0, err
+	}
+	return number, nil
+}

@@ -88,6 +88,10 @@ func (c *Controller) SetAutoNumber(ectx context.Context, input *structure.SetAut
 func (c *Controller) GetAutoNumber(ectx context.Context, input *structure.GetAutoNumber) (out string, err error) {
 	var useKey bool
 	if len(input.KeyNumber) > 0 {
+		_, err = strconv.ParseInt(input.KeyNumber, 10, 64)
+		if nil != err {
+			return "", errors.New(conf.ProjectIdNotHave)
+		}
 		useKey = true
 	}
 	if !useKey {
@@ -144,6 +148,9 @@ func _initValueNumber(ectx context.Context, key string) error {
 	}
 	aiVal, err := ai.SelectById(db, id)
 	if nil != err {
+		if sql.ErrNoRows == err {
+			return errors.New(conf.ProjectIdNotHave)
+		}
 		return err
 	}
 	n, err := ai.UpdateStNowById(db, id)

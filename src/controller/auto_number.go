@@ -47,7 +47,7 @@ func (c *Controller) SetAutoNumber(ectx context.Context, input *structure.SetAut
 
 	//check projectId,tableName,columnName is have
 	autoIdModel := model.AutoId{}
-	db := model.GetMasterDb()
+	db := model.GetMasterMysqlDb()
 	number, err := autoIdModel.CountByProjectIdAndTableNameAndColumnName(db, input.ProjectId, input.TableName, input.ColumnName)
 	if nil != err {
 		return
@@ -122,7 +122,7 @@ func (c *Controller) GetAutoNumber(ectx context.Context, input *structure.GetAut
 
 func _getValueNumber(ectx context.Context, key string) string {
 	redisUseKey := conf.REDIS_KEY_AUTO_NUMBER + stringtools.Md5(key)
-	valNumber := redis.GetRedisClient().LPop(ectx, redisUseKey).Val()
+	valNumber := redis.GetMasterRedisClient().LPop(ectx, redisUseKey).Val()
 	if len(valNumber) > 0 {
 		return valNumber
 	}
@@ -131,16 +131,16 @@ func _getValueNumber(ectx context.Context, key string) string {
 
 func _initValueNumber(ectx context.Context, key string) error {
 	redisLockKey := conf.REDIS_LOCK_AUTO_NUMBER + key
-	b, err := redis.LockRedis(ectx, redisLockKey, 6)
+	b, err := redis.LockMasterRedis(ectx, redisLockKey, 6)
 	if nil != err {
 		return err
 	}
 	if !b {
 		return errors.New(conf.KeyLocked)
 	}
-	defer redis.UnLockRedis(ectx, redisLockKey)
+	defer redis.UnLockMasterRedis(ectx, redisLockKey)
 	ai := model.AutoId{}
-	db := model.GetMasterDb()
+	db := model.GetMasterMysqlDb()
 
 	id, err := strconv.ParseInt(key, 10, 64)
 	if nil != err {
@@ -180,27 +180,27 @@ func _initValueNumber(ectx context.Context, key string) error {
 	}
 
 	redisUseKey := conf.REDIS_KEY_AUTO_NUMBER + stringtools.Md5(key)
-	return redis.GetRedisClient().RPush(ectx, redisUseKey, numberList...).Err()
+	return redis.GetMasterRedisClient().RPush(ectx, redisUseKey, numberList...).Err()
 }
 
 func _projectKey(ectx context.Context, projectId, tableName, columnName string) (string, error) {
 	redisKey := conf.REDIS_KEY_PROJECT_INFO_KEY + stringtools.Md5(projectId+"_"+tableName+"_"+columnName)
-	val := redis.GetRedisClient().Get(ectx, redisKey).Val()
+	val := redis.GetMasterRedisClient().Get(ectx, redisKey).Val()
 	if !strings.EqualFold(val, "") {
 		return val, nil
 	}
-	db := model.GetMasterDb()
+	db := model.GetMasterMysqlDb()
 	ai := model.AutoId{}
 	id, err := ai.SelectIdByProjectIdAndTableNameAndColumnName(db, projectId, tableName, columnName)
 	if nil != err {
 		if err == sql.ErrNoRows {
-			redis.GetRedisClient().Set(ectx, redisKey, conf.NULL_KEY_VALUE, time.Duration(conf.ConfRead{}.GetThroughAttackTime())*time.Second)
+			redis.GetMasterRedisClient().Set(ectx, redisKey, conf.NULL_KEY_VALUE, time.Duration(conf.ConfRead{}.GetThroughAttackTime())*time.Second)
 			return "", errors.New(conf.ProjectIdIsNull)
 		}
 		return "", err
 	}
 	key := strconv.FormatInt(id, 10)
-	redis.GetRedisClient().Set(ectx, redisKey, key, time.Duration(60)*time.Minute)
+	redis.GetMasterRedisClient().Set(ectx, redisKey, key, time.Duration(60)*time.Minute)
 	return key, nil
 }
 
@@ -210,7 +210,7 @@ func (c *Controller) GetKeyNumber(ectx context.Context, input *structure.GetKeyN
 		return
 	}
 	autoIdModel := model.AutoId{}
-	db := model.GetMasterDb()
+	db := model.GetMasterMysqlDb()
 	id, err := autoIdModel.SelectIdByProjectIdAndTableNameAndColumnName(db, input.ProjectId, input.TableName, input.ColumnName)
 	if nil != err {
 		return

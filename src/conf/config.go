@@ -12,8 +12,8 @@ import (
 
 var requestHttpPort string
 var sfc snowflakeConf
-var mysql *mysqltools.MySqlConf
-var redis *redistools.RedisConf
+var masterMysql *mysqltools.MySqlConf
+var masterRedis *redistools.RedisConf
 var confKey confKeyConf
 var throughAttackTime int64
 
@@ -24,8 +24,8 @@ func InitConf() {
 	}
 	requestHttpPort = ":" + strconv.Itoa(conf.Http.Port)
 	initLog(&conf)
-	mysql = initMysql(&conf)
-	redis = initRedis(&conf)
+	masterMysql = initMasterMysql(&conf)
+	masterRedis = initMasterRedis(&conf)
 	initConfKey(&conf)
 	initThroughAttack(&conf)
 }
@@ -47,21 +47,22 @@ func initLog(conf *config) {
 	})
 }
 
-func initMysql(conf *config) *mysqltools.MySqlConf {
+func initMasterMysql(conf *config) *mysqltools.MySqlConf {
 	return &mysqltools.MySqlConf{
-		DbDsn:       conf.Mysql.Username + ":" + conf.Mysql.Password + "@tcp(" + conf.Mysql.Address + ")/" + conf.Mysql.DbName + "?" + conf.Mysql.Params,
-		MaxOpen:     conf.Mysql.MaxOpen,
-		MaxIdle:     conf.Mysql.MaxIdle,
-		DbName:      conf.Mysql.DbName,
-		MaxLifetime: time.Duration(conf.Mysql.MaxLifetime) * time.Second,
+		DbDsn: conf.Mysql.Master.Username + ":" + conf.Mysql.Master.Password + "@tcp(" + conf.Mysql.Master.Address + ")/" +
+			conf.Mysql.Master.DbName + "?" + conf.Mysql.Master.Params,
+		MaxOpen:     conf.Mysql.Master.MaxOpen,
+		MaxIdle:     conf.Mysql.Master.MaxIdle,
+		DbName:      conf.Mysql.Master.DbName,
+		MaxLifetime: time.Duration(conf.Mysql.Master.MaxLifetime) * time.Second,
 	}
 }
 
-func initRedis(conf *config) *redistools.RedisConf {
+func initMasterRedis(conf *config) *redistools.RedisConf {
 	return &redistools.RedisConf{
-		Addr:     conf.Redis.Addr,
-		Password: conf.Redis.Password,
-		DB:       conf.Redis.DB,
+		Addr:     conf.Redis.Master.Addr,
+		Password: conf.Redis.Master.Password,
+		DB:       conf.Redis.Master.DB,
 	}
 }
 
@@ -79,7 +80,7 @@ func initThroughAttack(conf *config) {
 //更新某个特定配置
 func UpdateConf(confName string) (err error) {
 	switch confName {
-	case "mysql", "log":
+	case "mysql.master", "log":
 	default:
 		err = errors.New("conf name not have")
 		return
@@ -89,8 +90,8 @@ func UpdateConf(confName string) (err error) {
 		return err
 	}
 	switch confName {
-	case "mysql":
-		mysql = initMysql(&conf)
+	case "mysql.master":
+		masterMysql = initMasterMysql(&conf)
 	case "log":
 		initLog(&conf)
 	case "through_attack":
@@ -104,12 +105,12 @@ type ConfRead struct {
 }
 
 //新配置未生效MySQL配置
-func (ConfRead) NewConfGetMysqlConf() (*mysqltools.MySqlConf, error) {
+func (ConfRead) NewConfGetMasterMysqlConf() (*mysqltools.MySqlConf, error) {
 	conf, err := getConf()
 	if nil != err {
 		return nil, err
 	}
-	return initMysql(&conf), nil
+	return initMasterMysql(&conf), nil
 }
 
 func (ConfRead) GetRequestHttpPort() string {
@@ -120,12 +121,12 @@ func (ConfRead) GetSnowflakeConf() (dataCenterId, machineId int64) {
 	return sfc.DataCenterId, sfc.MachineId
 }
 
-func (ConfRead) GetMysqlConf() *mysqltools.MySqlConf {
-	return mysql
+func (ConfRead) GetMasterMysqlConf() *mysqltools.MySqlConf {
+	return masterMysql
 }
 
-func (ConfRead) GetRedisConf() *redistools.RedisConf {
-	return redis
+func (ConfRead) GetMasterRedisConf() *redistools.RedisConf {
+	return masterRedis
 }
 
 func (ConfRead) GetConfKey() (ak, sk string) {

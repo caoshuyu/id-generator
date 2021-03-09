@@ -6,22 +6,22 @@ import (
 	"github.com/caoshuyu/kit/mysqltools"
 )
 
-var masterDbClient *mysqltools.MysqlClient
+var masterMysqlClient *mysqltools.MysqlClient
 
 //获取链接
-func GetMasterDb() *sql.DB {
-	if nil == masterDbClient {
-		client, err := ConnectMysqlDb(conf.ConfRead{}.GetMysqlConf())
+func GetMasterMysqlDb() *sql.DB {
+	if nil == masterMysqlClient {
+		client, err := ConnectMysqlDb(conf.ConfRead{}.GetMasterMysqlConf())
 		if nil != err {
 			panic(err)
 		}
-		masterDbClient = client
+		masterMysqlClient = client
 	}
-	return masterDbClient.Client
+	return masterMysqlClient.Client
 }
 
-func UpdateMasterDb(newClient *mysqltools.MysqlClient) {
-	masterDbClient = newClient
+func UpdateMasterMysqlDb(newClient *mysqltools.MysqlClient) {
+	masterMysqlClient = newClient
 }
 
 func UpdateTableValue(db *sql.DB, sqlText string, params []interface{}) (number int64, err error) {

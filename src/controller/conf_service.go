@@ -16,9 +16,9 @@ func UpdateConf(ak, sk, name string) error {
 		return errors.New("ak or sk error")
 	}
 	switch name {
-	case "mysql":
+	case "mysql.master":
 		//检测新数据连接是否可用
-		newConf, err := conf.ConfRead{}.NewConfGetMysqlConf()
+		newConf, err := conf.ConfRead{}.NewConfGetMasterMysqlConf()
 		if nil != err {
 			return err
 		}
@@ -31,7 +31,7 @@ func UpdateConf(ak, sk, name string) error {
 		if nil != err {
 			return err
 		}
-		model.UpdateMasterDb(client)
+		model.UpdateMasterMysqlDb(client)
 
 	case "log":
 		err = conf.UpdateConf(name)

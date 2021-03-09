@@ -141,3 +141,13 @@ ID 生成器
 
 ## 数据库文件
 + resources/id_generator.sql
+
+## 项目错误码
+|error_code|message|含义|
+|---|---|---|
+|1000|project id is null|项目id为空|
+|1001|id type not in int or string|id类型需要int或者string类型|
+|1002|project_id and table_name and column_name is have|project_id，table_name，column_name组合已存在|
+|1003|this key number is locked ,try to later|数据key已锁定|
+|1004|project id is not have|项目id不存在|
+

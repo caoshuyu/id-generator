@@ -150,7 +150,7 @@ func (t *AutoId) UpdateStNowById(db *sql.DB, id int64) (number int64, err error)
 	sqlText := "UPDATE auto_id SET st_now = st_now + n_increment WHERE id = ?"
 	var params []interface{}
 	params = append(params, id)
-	number, err = UpdateTableValue(db, sqlText, params)
+	number, err = mysqltools.UpdateTableValue(db, sqlText, params)
 	if nil != err {
 		t._errorUpdateStNowById(err, sqlText, id)
 		return 0, err
